@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const { Sequelize, DataTypes, Model } = require('sequelize');
 require('dotenv').config();
 const express = require('express');
 const app = express();
@@ -10,13 +10,14 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
     logging: false, // Aseta true, jos haluat nähdä SQL-kyselyt konsolissa
 });
 
+class Blog extends Model {}
+
 // Määrittele malli
-const Blog = sequelize.define(
-    'Blog',
+Blog.init(
     {
         id: {
-            type: DataTypes.UUID,
-            defaultValue: Sequelize.UUIDV4,
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
             primaryKey: true,
             allowNull: false,
         },
@@ -33,11 +34,14 @@ const Blog = sequelize.define(
             allowNull: false,
         },
         likes: {
-            type: DataTypes.SMALLINT,
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
             allowNull: true,
         },
     },
     {
+        sequelize,
+        underscored: true,
         tableName: 'blogs',
         timestamps: false,
     }
@@ -54,10 +58,19 @@ sequelize
         console.error('Unable to connect to the database:', err);
     });
 
-app.get('/api/notes', async (req, res) => {
+app.get('/api/blogs', async (req, res) => {
     try {
         const blogs = await Blog.findAll();
         res.status(200).json(blogs);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+app.post('/api/blogs', async (req, res) => {
+    try {
+        const blog = await Blog.create(req.body);
+        res.status(201).json(blog);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
