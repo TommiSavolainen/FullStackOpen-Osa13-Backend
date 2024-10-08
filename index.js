@@ -1,85 +1,123 @@
-const { Sequelize, DataTypes, Model } = require('sequelize');
-require('dotenv').config();
 const express = require('express');
+require('express-async-errors');
 const app = express();
 
-// PostgreSQL-tietokannan yhteys
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: 'postgres',
-    protocol: 'postgres',
-    logging: false, // Aseta true, jos haluat nähdä SQL-kyselyt konsolissa
-});
+const { PORT } = require('./util/config');
+const { connectToDatabase } = require('./util/db');
+const errorHandler = require('./util/errorHandler');
 
-class Blog extends Model {}
+const blogRouter = require('./controllers/blogs');
 
-// Määrittele malli
-Blog.init(
-    {
-        id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true,
-            allowNull: false,
-        },
-        author: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-        },
-        url: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-        },
-        title: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-        },
-        likes: {
-            type: DataTypes.INTEGER,
-            defaultValue: 0,
-            allowNull: true,
-        },
-    },
-    {
-        sequelize,
-        underscored: true,
-        tableName: 'blogs',
-        timestamps: false,
-    }
-);
+app.use(express.json());
 
-// Testaa yhteys ja synkronoi mallit
-sequelize
-    .authenticate()
-    .then(() => {
-        console.log('Connection has been established successfully.');
-        return sequelize.sync();
-    })
-    .catch((err) => {
-        console.error('Unable to connect to the database:', err);
+app.use('/api/blogs', blogRouter);
+
+app.use(errorHandler);
+
+const start = async () => {
+    await connectToDatabase();
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT} url: http://localhost:${PORT}`);
     });
+};
 
-app.get('/api/blogs', async (req, res) => {
-    try {
-        const blogs = await Blog.findAll();
-        res.status(200).json(blogs);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
+start();
+// const { Sequelize, DataTypes, Model } = require('sequelize');
+// require('dotenv').config();
+// const express = require('express');
+// const app = express();
 
-app.post('/api/blogs', async (req, res) => {
-    try {
-        const blog = await Blog.create(req.body);
-        res.status(201).json(blog);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
+// // PostgreSQL-tietokannan yhteys
+// const sequelize = new Sequelize(process.env.DATABASE_URL, {
+//     dialect: 'postgres',
+//     protocol: 'postgres',
+//     logging: false, // Aseta true, jos haluat nähdä SQL-kyselyt konsolissa
+// });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT} url: http://localhost:${PORT}`);
-});
+// class Blog extends Model {}
+
+// // Määrittele malli
+// Blog.init(
+//     {
+//         id: {
+//             type: DataTypes.INTEGER,
+//             autoIncrement: true,
+//             primaryKey: true,
+//             allowNull: false,
+//         },
+//         author: {
+//             type: DataTypes.TEXT,
+//             allowNull: false,
+//         },
+//         url: {
+//             type: DataTypes.TEXT,
+//             allowNull: false,
+//         },
+//         title: {
+//             type: DataTypes.TEXT,
+//             allowNull: false,
+//         },
+//         likes: {
+//             type: DataTypes.INTEGER,
+//             defaultValue: 0,
+//             allowNull: true,
+//         },
+//     },
+//     {
+//         sequelize,
+//         underscored: true,
+//         tableName: 'blogs',
+//         timestamps: false,
+//     }
+// );
+
+// // Testaa yhteys ja synkronoi mallit
+// sequelize
+//     .authenticate()
+//     .then(() => {
+//         console.log('Connection has been established successfully.');
+//         return sequelize.sync();
+//     })
+//     .catch((err) => {
+//         console.error('Unable to connect to the database:', err);
+//     });
+
+// app.get('/api/blogs', async (req, res) => {
+//     try {
+//         const blogs = await Blog.findAll();
+//         res.status(200).json(blogs);
+//     } catch (error) {
+//         res.status(400).json({ error: error.message });
+//     }
+// });
+
+// app.post('/api/blogs', async (req, res) => {
+//     try {
+//         const blog = await Blog.create(req.body);
+//         res.status(201).json(blog);
+//     } catch (error) {
+//         res.status(400).json({ error: error.message });
+//     }
+// });
+
+// app.delete('/api/blogs/:id', async (req, res) => {
+//     try {
+//         const blog = await Blog.findByPk(req.params.id);
+//         if (blog) {
+//             await blog.destroy();
+//             res.status(204).end();
+//         } else {
+//             res.status(404).json({ error: 'Blog not found' });
+//         }
+//     } catch (error) {
+//         res.status(400).json({ error: error.message });
+//     }
+// });
+
+// const PORT = process.env.PORT || 3001;
+// app.listen(PORT, () => {
+//     console.log(`Server is running on port ${PORT} url: http://localhost:${PORT}`);
+// });
 // const { createClient } = require('@supabase/supabase-js');
 // require('dotenv').config();
 // const supabaseUrl = 'https://hiqnjktmuwtpzgbgnljh.supabase.co';
