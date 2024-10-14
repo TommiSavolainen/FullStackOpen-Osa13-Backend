@@ -1,15 +1,15 @@
-'use strict';
+const { DataTypes } = require('sequelize');
 
 module.exports = {
-    up: async (queryInterface, Sequelize) => {
+    up: async (queryInterface) => {
         await queryInterface.createTable('Users', {
             id: {
-                type: Sequelize.INTEGER,
+                type: DataTypes.INTEGER,
                 primaryKey: true,
                 autoIncrement: true,
             },
             username: {
-                type: Sequelize.STRING,
+                type: DataTypes.STRING,
                 allowNull: false,
                 unique: true,
                 validate: {
@@ -17,45 +17,45 @@ module.exports = {
                 },
             },
             name: {
-                type: Sequelize.STRING,
+                type: DataTypes.STRING,
                 allowNull: false,
             },
             created_at: {
-                type: Sequelize.DATE,
+                type: DataTypes.DATE,
                 allowNull: false,
-                defaultValue: Sequelize.fn('now'),
+                defaultValue: DataTypes.NOW,
             },
             updated_at: {
-                type: Sequelize.DATE,
+                type: DataTypes.DATE,
                 allowNull: false,
-                defaultValue: Sequelize.fn('now'),
+                defaultValue: DataTypes.NOW,
             },
         });
 
         await queryInterface.createTable('Blogs', {
             id: {
-                type: Sequelize.INTEGER,
+                type: DataTypes.INTEGER,
                 primaryKey: true,
                 autoIncrement: true,
             },
             author: {
-                type: Sequelize.STRING,
+                type: DataTypes.STRING,
                 allowNull: false,
             },
             url: {
-                type: Sequelize.STRING,
+                type: DataTypes.STRING,
                 allowNull: false,
             },
             title: {
-                type: Sequelize.STRING,
+                type: DataTypes.STRING,
                 allowNull: false,
             },
             likes: {
-                type: Sequelize.INTEGER,
+                type: DataTypes.INTEGER,
                 defaultValue: 0,
             },
             user_id: {
-                type: Sequelize.INTEGER,
+                type: DataTypes.INTEGER,
                 allowNull: false,
                 references: {
                     model: 'Users',
@@ -63,19 +63,19 @@ module.exports = {
                 },
             },
             created_at: {
-                type: Sequelize.DATE,
+                type: DataTypes.DATE,
                 allowNull: false,
-                defaultValue: Sequelize.fn('now'),
+                defaultValue: DataTypes.NOW,
             },
             updated_at: {
-                type: Sequelize.DATE,
+                type: DataTypes.DATE,
                 allowNull: false,
-                defaultValue: Sequelize.fn('now'),
+                defaultValue: DataTypes.NOW,
             },
         });
     },
 
-    down: async (queryInterface, Sequelize) => {
+    down: async (queryInterface) => {
         await queryInterface.dropTable('Blogs');
         await queryInterface.dropTable('Users');
     },

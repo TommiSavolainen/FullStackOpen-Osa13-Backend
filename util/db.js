@@ -1,45 +1,44 @@
-const { Sequelize } = require('sequelize');
-const { DATABASE_URL } = require('./config');
+const Sequelize = require('sequelize');
 const { Umzug, SequelizeStorage } = require('umzug');
+const { DATABASE_URL } = require('./config');
 
 const sequelize = new Sequelize(DATABASE_URL, {
-    dialect: 'postgres',
-    protocol: 'postgres',
-    logging: false, // Aseta true, jos haluat nähdä SQL-kyselyt konsolissa
+    dialectOptions: {
+        ssl: {
+            require: true,
+            rejectUnauthorized: false,
+        },
+    },
 });
 
-const runMigrations = async () => {
-    const umzug = new Umzug({
-        migrations: {
-            glob: 'migrations/*.js',
-        },
-        context: sequelize.getQueryInterface(),
-        storage: new SequelizeStorage({ sequelize, tableName: 'migrations' }),
-        logger: console,
-    });
+const migrationConf = {
+    migrations: {
+        glob: 'migrations/*.js',
+    },
+    storage: new SequelizeStorage({ sequelize, tableName: 'migrations' }),
+    context: sequelize.getQueryInterface(),
+    logger: console,
+};
 
-    try {
-        const migrations = await umzug.up();
-        console.log('Migrations have been run successfully.', {
-            files: migrations.map((migration) => migration.name),
-        });
-    } catch (error) {
-        console.error('Error running migrations:', error);
-        return process.exit(1);
-    }
-    return null;
+const runMigrations = async () => {
+    const migrator = new Umzug(migrationConf);
+    const migrations = await migrator.up();
+    console.log('Migrations up to date', {
+        files: migrations.map((mig) => mig.name),
+    });
 };
 
 const connectToDatabase = async () => {
     try {
         await sequelize.authenticate();
         await runMigrations();
-        console.log('Connection has been established successfully.');
-    } catch (error) {
-        console.error('Unable to connect to the database:', error);
+        console.log('database connected');
+    } catch (err) {
+        console.log('connecting database failed');
         return process.exit(1);
     }
+
     return null;
 };
 
-module.exports = { sequelize, connectToDatabase };
+module.exports = { connectToDatabase, sequelize };
