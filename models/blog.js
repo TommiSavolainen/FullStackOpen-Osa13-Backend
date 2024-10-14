@@ -29,6 +29,14 @@ Blog.init(
             defaultValue: 0,
             allowNull: true,
         },
+        year: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: {
+                min: 1991,
+                max: new Date().getFullYear(),
+            },
+        },
         userId: {
             type: DataTypes.INTEGER,
             allowNull: false,
