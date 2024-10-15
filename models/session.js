@@ -1,14 +1,18 @@
 const { Model, DataTypes } = require('sequelize');
 const { sequelize } = require('../util/db');
 
-class ReadingList extends Model {}
+class Session extends Model {}
 
-ReadingList.init(
+Session.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
+        },
+        token: {
+            type: DataTypes.STRING,
+            allowNull: false,
         },
         userId: {
             type: DataTypes.INTEGER,
@@ -18,22 +22,6 @@ ReadingList.init(
                 key: 'id',
             },
             onDelete: 'CASCADE',
-            field: 'user_id',
-        },
-        blogId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: 'Blogs',
-                key: 'id',
-            },
-            onDelete: 'CASCADE',
-            field: 'blog_id',
-        },
-        read: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false,
         },
         createdAt: {
             type: DataTypes.DATE,
@@ -50,11 +38,11 @@ ReadingList.init(
     },
     {
         sequelize,
-        modelName: 'ReadingList',
-        tableName: 'ReadingLists',
+        modelName: 'Session',
+        tableName: 'Sessions',
         underscored: true,
-        timestamps: false,
+        timestamps: true,
     }
 );
 
-module.exports = ReadingList;
+module.exports = Session;

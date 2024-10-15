@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { Blog, User, ReadingList } = require('../models');
+const { tokenExtractor, userExtractor } = require('../util/middleware');
 
 router.get('/', async (req, res) => {
     try {
@@ -19,11 +20,11 @@ router.post('/', async (req, res) => {
         const user = await User.create(req.body);
         res.json(user);
     } catch (error) {
-        return res.status(400).json({ error });
+        return res.status(400).json({ error: error.message });
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', tokenExtractor, userExtractor, async (req, res) => {
     try {
         const user = await User.findByPk(req.params.id, {
             include: {
@@ -35,15 +36,35 @@ router.get('/:id', async (req, res) => {
             },
         });
 
-        if (user) {
-            res.json({
-                name: user.name,
-                username: user.username,
-                readings: user.ReadingLists.map((reading) => reading.Blog),
-            });
-        } else {
-            res.status(404).json({ error: 'User not found' });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
         }
+
+        let readings = user.ReadingLists.map((reading) => ({
+            id: reading.Blog.id,
+            url: reading.Blog.url,
+            title: reading.Blog.title,
+            author: reading.Blog.author,
+            likes: reading.Blog.likes,
+            year: reading.Blog.year,
+            readinglists: [
+                {
+                    read: reading.read,
+                    id: reading.id,
+                },
+            ],
+        }));
+
+        if (req.query.read) {
+            const readFilter = req.query.read === 'true';
+            readings = readings.filter((reading) => reading.readinglists[0].read === readFilter);
+        }
+
+        res.json({
+            name: user.name,
+            username: user.username,
+            readings,
+        });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -58,7 +79,7 @@ router.put('/:username', async (req, res) => {
         }
         return res.status(404).json({ error: 'User not found' });
     } catch (error) {
-        return res.status(400).json({ error });
+        return res.status(400).json({ error: error.message });
     }
 });
 

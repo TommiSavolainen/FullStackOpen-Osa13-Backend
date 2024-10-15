@@ -24,6 +24,23 @@ User.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
+        disabled: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        createdAt: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW,
+            field: 'created_at',
+        },
+        updatedAt: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW,
+            field: 'updated_at',
+        },
     },
     {
         sequelize,
