@@ -1,5 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
-
+const ReadingList = require('./readinglist');
 const { sequelize } = require('../util/db');
 
 class Blog extends Model {}
@@ -44,10 +44,14 @@ Blog.init(
     },
     {
         sequelize,
+        modelName: 'Blog',
+        tableName: 'Blogs',
         underscored: true,
-        tableName: 'blogs',
         timestamps: false,
     }
 );
+
+Blog.hasMany(ReadingList, { foreignKey: 'blogId' });
+ReadingList.belongsTo(Blog, { foreignKey: 'blogId' });
 
 module.exports = Blog;

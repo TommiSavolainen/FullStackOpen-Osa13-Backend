@@ -1,6 +1,5 @@
 const router = require('express').Router();
-const { Blog } = require('../models');
-const { User } = require('../models');
+const { Blog, User, ReadingList } = require('../models');
 
 router.get('/', async (req, res) => {
     try {
@@ -21,6 +20,32 @@ router.post('/', async (req, res) => {
         res.json(user);
     } catch (error) {
         return res.status(400).json({ error });
+    }
+});
+
+router.get('/:id', async (req, res) => {
+    try {
+        const user = await User.findByPk(req.params.id, {
+            include: {
+                model: ReadingList,
+                include: {
+                    model: Blog,
+                    attributes: ['id', 'url', 'title', 'author', 'likes', 'year'],
+                },
+            },
+        });
+
+        if (user) {
+            res.json({
+                name: user.name,
+                username: user.username,
+                readings: user.ReadingLists.map((reading) => reading.Blog),
+            });
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
 });
 
