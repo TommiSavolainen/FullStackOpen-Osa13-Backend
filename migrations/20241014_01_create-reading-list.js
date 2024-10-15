@@ -10,7 +10,7 @@ module.exports = {
                 primaryKey: true,
                 autoIncrement: true,
             },
-            userId: {
+            user_id: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 references: {
@@ -19,7 +19,7 @@ module.exports = {
                 },
                 onDelete: 'CASCADE',
             },
-            blogId: {
+            blog_id: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 references: {
@@ -33,12 +33,12 @@ module.exports = {
                 allowNull: false,
                 defaultValue: false,
             },
-            createdAt: {
+            created_at: {
                 type: DataTypes.DATE,
                 allowNull: false,
                 defaultValue: DataTypes.NOW,
             },
-            updatedAt: {
+            updated_at: {
                 type: DataTypes.DATE,
                 allowNull: false,
                 defaultValue: DataTypes.NOW,

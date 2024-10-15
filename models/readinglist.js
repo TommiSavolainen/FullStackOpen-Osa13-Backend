@@ -18,6 +18,7 @@ ReadingList.init(
                 key: 'id',
             },
             onDelete: 'CASCADE',
+            field: 'user_id',
         },
         blogId: {
             type: DataTypes.INTEGER,
@@ -27,6 +28,7 @@ ReadingList.init(
                 key: 'id',
             },
             onDelete: 'CASCADE',
+            field: 'user_id',
         },
         read: {
             type: DataTypes.BOOLEAN,
@@ -37,11 +39,13 @@ ReadingList.init(
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW,
+            field: 'created_at',
         },
         updatedAt: {
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW,
+            field: 'updated_at',
         },
     },
     {
